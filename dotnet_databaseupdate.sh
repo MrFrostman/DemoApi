@@ -1,0 +1,1 @@
+dotnet ef database update --project Product.Infrastructure --startup-project Product.Api

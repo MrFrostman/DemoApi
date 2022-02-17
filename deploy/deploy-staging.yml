@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-cs-service-staging
+  namespace: web
+  labels:
+    app.kubernetes.io/name: product-cs-service-staging
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: product-cs-service-staging
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-cs-service-deployment-staging
+  namespace: web
+  labels:
+    app.kubernetes.io/name: product-cs-service-staging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: product-cs-service-staging
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  product:
+    metadata:
+      labels:
+        app.kubernetes.io/name: product-cs-service-staging
+    spec:
+      containers:
+        - name: product-cs-service
+          image: gcr.io/lab-kube/ixuapis/cs/product-cs-service-staging:latest
+          imagePullPolicy: Always
+          env:
+            # [START cloudsql_secrets]
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql
+                  key: password
+            # [END cloudsql_secrets]
+          ports:
+            - name: frontend
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "50m"
+            limits:
+              memory: "500Mi"
+              cpu: "100m"
+        # [START proxy_container]
+        - image: gcr.io/cloudsql-docker/gce-proxy:1.16
+          name: cloudsql-proxy
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "50m"
+            limits:
+              memory: "200Mi"
+              cpu: "0.1"
+          command:
+            [
+              "/cloud_sql_proxy",
+              "--dir=/cloudsql",
+              "-instances=servidores-neuland:us-east1:ixulabs-apis=tcp:5432",
+              "-credential_file=/secrets/cloudsql/credentials.json",
+            ]
+          volumeMounts:
+            - name: cloudsql-oauth-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: ssl-certs
+              mountPath: /etc/ssl/certs
+            - name: cloudsql
+              mountPath: /cloudsql
+        # [END proxy_container]
+      # [START volumes]
+      volumes:
+        - name: cloudsql-oauth-credentials
+          secret:
+            secretName: cloudsql-oauth-credentials
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs
+        - name: cloudsql
+          emptyDir: {}
+        # [END volumes]
+# [END kubernetes_deployment]
+

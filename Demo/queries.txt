@@ -1,0 +1,204 @@
+
+// Cuando creas un Miembro Te retorna el accessToken para un autologin
+mutation{
+  createMember(input: { email: "zephirotube+willy3@gmail.com", password: "cxARP3DI3M"}){
+    accessToken
+    member{
+      id
+      email
+    }
+  }
+}
+
+mutation{
+  loginMember(input: { email: "micorreo@gmail.com", password: "2324234234"}){
+     accessToken
+     member{
+        id
+        email
+     }
+  }
+}
+
+--- Authorization Bearer "accessToken"
+mutation{
+  createCompany(input:{  name: "Mi Company"}){
+    company{
+      id
+      name
+    }
+  }
+}
+
+
+
+
+--- Authorization Bearer "accessToken"
+mutation{
+   createProject(input:{ companyId: 1, name: "MIproje", description: "asassa",  logo: "ddd", tagLine: "sasas"}){
+      project{
+        id
+        name
+      }
+   }
+}
+
+--- Authorization Bearer "accessToken"
+query {
+  me {
+    memberCompanies {
+      company {
+        id
+        name
+        projects {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+
+
+
+
+query{
+   countries{
+      name
+      code
+   }
+}
+
+
+Actualizacion Perfil
+--- Authorization Bearer "accessToken"
+mutation{
+   updateMember(input:{ firstName: "Jose", lastName: " Montalvo",  phone: "000", photo: "sas",  countryId: 1 }){
+        member{
+             email
+             id
+
+             profile{
+               firstName
+               lastName
+             }
+        }
+   }
+}
+
+Actualizacion Password
+--- Authorization Bearer "accessToken"
+mutation {
+  updatePassword(input: { password: "carp3di3m"}){
+    member{
+      email
+    }
+  }
+}
+
+
+
+
+--- Authorization Bearer "accessToken"
+query {
+  me {
+    email
+    profile {
+      firstName
+      lastName
+      phone
+      photo
+    }
+    memberCompanies {
+      company {
+        id
+        name
+        projects {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+
+
+
+#### Creacion de Usuario
+--- Authorization Bearer "accessToken"
+query {
+  roles{
+    codeName
+    name
+  }
+}
+
+
+mutation{
+  createMember(input: { firstName: "Carlos",lastName:"Montalvo", email: "zephirotube+willy111@gmail.com", password: "cxARP3DI3M",   roleCode: "__user__", companyId: 1 }){
+
+    member{
+      id
+      email
+      profile {
+        firstName
+      }
+    }
+  }
+}
+
+
+
+
+
+mutation{
+   updateMember(input:{ firstName: "Usuario", lastName: "ssss",  phone: "000", photo: "sas", memberId: 4, roleCode: "__admin__" }){
+        member{
+             email
+             id
+             phone
+              memberRoles {
+                 role {
+                    name
+                    codeName
+                 }
+              }
+
+             profile{
+               firstName
+               lastName
+             }
+        }
+   }
+}
+
+
+
+#Listado de Usuarios de tu Proyecto
+Inactivo = false Activos: true
+query {
+   members( filter: {isActive: { eq: false} }){
+     id
+      email
+      profile{
+        firstName
+        lastName
+      }
+      memberRoles{
+        role {
+          name
+          codeName
+        }
+      }
+   }
+}
+
+#Activar Miembro
+mutation{
+    activeMember(input:{memberId: 3}){
+      member{
+        email
+      }
+    }
+  
+}

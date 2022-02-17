@@ -1,0 +1,60 @@
+image: node:14
+
+pipelines:
+  branches:
+    master:      
+      #- step:
+      #    name: Restart Staging DB
+      #    image: google/cloud-sdk:latest
+      #    caches:
+      #      - docker
+      #    script:
+      #      - bash deploy/generate_env.sh
+      #      - gcloud auth activate-service-account --project=servidores-neuland --key-file=gcpcmdlineuser2.json
+      #      - gcloud auth activate-service-account --key-file=gcpcmdlineuser2.json
+      #      - gcloud sql databases delete product-cs-service-staging --instance ixulabs-apis --quiet
+      #      - gcloud sql databases create product-cs-service-staging --instance ixulabs-apis --quiet
+      #    services:
+      #      - docker    
+      - step:
+          name: Deploy Staging
+          image: google/cloud-sdk:latest
+          deployment: staging
+          caches:
+            - docker
+          script:
+            - bash deploy/generate_env.sh
+            - gcloud auth activate-service-account --project=lab-kube --key-file=gcpcmdlineuser.json
+            - gcloud auth activate-service-account --key-file=gcpcmdlineuser.json
+            - gcloud auth configure-docker
+            - docker build -t ixuapis/cs/product-cs-service-staging .
+            - docker tag ixuapis/cs/product-cs-service-staging gcr.io/lab-kube/ixuapis/cs/product-cs-service-staging:latest && docker push gcr.io/lab-kube/ixuapis/cs/product-cs-service-staging:latest
+            - gcloud container clusters get-credentials labkube --zone us-east1-b --project lab-kube
+            - kubectl rollout restart deploy product-cs-service-deployment-staging -n=web
+          services:
+            - docker  
+      #- step:
+      #    name: Deploy Production
+      #    image: google/cloud-sdk:latest
+      #    deployment: production
+      #    trigger: manual
+      #    caches:
+      #      - docker
+      #    script:
+      #      - bash deploy/generate_env.sh
+      #      - gcloud auth activate-service-account --project=lab-kube --key-file=gcpcmdlineuser.json
+      #      - gcloud auth activate-service-account --key-file=gcpcmdlineuser.json
+      #      - gcloud auth configure-docker
+      #      - docker build -t ixuapis/cs/product-cs-service .
+      #      - docker tag ixuapis/cs/product-cs-service gcr.io/lab-kube/ixuapis/cs/product-cs-service:latest && docker push gcr.io/lab-kube/ixuapis/cs/product-cs-service:latest
+      #      - gcloud container clusters get-credentials labkube --zone us-east1-b --project lab-kube
+      #      - kubectl rollout restart deploy product-cs-service-deployment -n=web
+      #    services:
+      #      - docker
+definitions:
+  services:
+    docker:
+      memory: 2048
+  caches:
+    nodecustom: ./node_modules
+    yarn: /usr/local/share/.cache/yarn

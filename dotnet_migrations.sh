@@ -1,0 +1,1 @@
+dotnet ef migrations add $1 --project Product.Infrastructure --startup-project Product.Api

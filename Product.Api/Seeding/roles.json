@@ -1,0 +1,31 @@
+﻿[
+  {
+    "Id": "00000000-0000-0000-0000-000000000000",
+    "Name": "OWNER",
+    "CodeName": "__owner__",
+    "Description": "",
+    "Priority": 1
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000000",
+    "Name": "SUPERADMIN",
+    "CodeName": "__superadmin__",
+    "Description": "",
+    "Priority": 2
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000000",
+    "Name": "ADMIN",
+    "CodeName": "__partner__",
+    "Description": "",
+    "Priority": 3
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000000",
+    "Name": "USER",
+    "CodeName": "__partner_user__",
+    "Description": "",
+    "Priority": 4
+  }
+]
+

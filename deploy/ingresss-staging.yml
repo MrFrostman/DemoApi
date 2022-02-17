@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: product-cs-ingress-staging
+  namespace: web
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - product-cs-service.staging.ixulabs.com
+      secretName: product-cs-service-ingress-stag-tls
+  rules:
+    - host: product-cs-service-staging.ixulabs.com
+      http:
+        paths:
+          - backend:
+              serviceName: product-cs-service-staging
+              servicePort: 80
